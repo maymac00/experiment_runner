@@ -1,1 +1,1 @@
-from ExperimentManager import ExperimentManager
+from experiment_runner.ExperimentManager import ExperimentManager
