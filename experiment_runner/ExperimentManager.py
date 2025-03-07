@@ -132,7 +132,7 @@ class ExperimentManager(abc.ABC):
                 self.study.tell(trial, state=optuna.trial.TrialState.PRUNED)
                 continue
             self.study.tell(trial, value)
-            print(f"Trial {i} completed with value {value}. Best value so far: {self.study.best_value} of trial {self.study.best_trial.number}")
+            print(f"Run {i} completed with value {value}. Best value so far: {self.study.best_value} of trial {self.study.best_trial.number}")
 
     def get_best_params(self) -> Dict[str, Any]:
         """
