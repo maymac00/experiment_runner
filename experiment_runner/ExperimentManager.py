@@ -105,7 +105,10 @@ class ExperimentManager(abc.ABC):
         if self.save_models:
             model.save(trial_path+"/final_model")
             trial.set_user_attr(f"model_dir", trial_path)
-
+        try:
+            env.close()
+        except Exception:
+            pass
         value = self.evaluate(model, self.build_env(args["env"]), args["experiment"])
         return value
 
