@@ -30,7 +30,7 @@ class ExperimentManager(abc.ABC):
             if not os.path.exists(path):
                 os.makedirs(path)
             storage = f"sqlite:///{path}/{name}.db"
-        self.study = optuna.create_study(study_name=name + "_study", storage=storage, load_if_exists=True)
+        self.study = optuna.create_study(study_name=name + "_study", storage=storage, load_if_exists=True, direction="maximize")
         self.hp_manager = HyperparameterManager(hp_path)
 
     def get_callbacks(self, args : Dict[str, Dict[str, Any]]) -> List[MaybeCallback]:
