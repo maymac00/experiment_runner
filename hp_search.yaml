@@ -1,0 +1,35 @@
+# ppo_hyperparams.yaml
+model:
+  learning_rate:
+    type: "float"
+    low: 1e-5
+    high: 1e-3
+    log: true  # Log-uniform sampling
+    description: "Initial learning rate"
+  n_steps:
+    type: "int"
+    low: 2000
+    high: 6000
+    step: 2000  # Increments of 128
+    description: "Number of steps per policy update"
+
+  gamma:
+    type: "float"
+    low: 0.9
+    high: 0.9999
+    description: "Discount factor"
+
+  ent_coef:
+    type: "float"
+    low: 0.001
+    high: 0.2
+    description: "Entropy regularization coefficient"
+
+policy:
+  net_arch: {pi: [8,8], vf: [8, 8]}
+
+experiment:
+  n_timesteps: 30000
+  n_eval_episodes: 200
+  n_envs: 5
+  log_interval: 1

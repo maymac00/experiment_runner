@@ -1,0 +1,27 @@
+[build-system]
+requires = ["setuptools>=42", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "experiment_runner"
+version = "0.1"
+description = "Library to manage stablebaselines3 experiments with optuna hyperparameter tunning"  # Optional, provide a brief description of your project
+authors = [{ name = "Arnau Mayoral-Macau", email = "arnau.mayoral@iiia.csic.es" }]  # Optional
+readme = "README.md"  # Optional
+license = { file = "LICENSE" }  # Optional, update based on your actual license
+requires-python = ">=3.10"  # Optional, adjust based on the minimum Python version you support
+
+dependencies = [
+    "gymnasium==1.0.0",
+    "matplotlib==3.10.0",
+    "numpy==1.26.1",
+    "torch==2.6.0",
+    "tensorboard==2.18.0",
+    "optuna==4.2.1",
+    "optuna-dashboard==0.17.0",
+    "PyYAML==6.0.2",
+    "stable_baselines3 @ git+https://github.com/maymac00/mo-stable-baselines3.git@c290795a38b1954b40d6384ea0a267ff790e1ce0"
+]
+
+[tool.setuptools.packages.find]
+where = ["."]
