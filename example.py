@@ -31,5 +31,5 @@ class CartpoleHPT(ExperimentManager):
 
 if __name__ == '__main__':
     # em = CartpoleHPT("test_study", "cartpole_example", hp_path="hp_search.yaml")
-    em = CartpoleHPT("test", "cartpole_example", hp_path="hp_search.yaml", tb_log=True)
+    em = CartpoleHPT("test", "cartpole_example", hp_path="hp_search.yaml", tb_log=True, normalize_reward=True)
     em.optimize(10)

@@ -3,7 +3,7 @@ from functools import partial
 from typing import List, Dict, AnyStr, Any
 
 from stable_baselines3.common.type_aliases import MaybeCallback
-from stable_baselines3.common.vec_env import SubprocVecEnv, DummyVecEnv
+from stable_baselines3.common.vec_env import SubprocVecEnv, DummyVecEnv, VecNormalize
 
 from experiment_runner.HyperparameterManager import HyperparameterManager
 import optuna
@@ -17,12 +17,13 @@ class ExperimentManager(abc.ABC):
     :param storage: Path to the database where the results are stored
     :param hp_path: Path to the YAML file with the hyperparameters
     """
-    def __init__(self, name: str, save_dir : str, storage: str = None, hp_path: str = None, prune: bool = False, save_models: bool = True, tb_log: bool = False):
+    def __init__(self, name: str, save_dir : str, storage: str = None, hp_path: str = None, prune: bool = False, save_models: bool = True, tb_log: bool = False, normalize_reward : bool = False):
         self.name = name
         self.save_dir = save_dir
         self.prune = prune
         self.save_models = save_models
         self.tb_log = tb_log
+        self.normalize_reward = normalize_reward
         if storage is None:
             path = os.path.join(os.getcwd(), save_dir)
             print(f"Using sqlite storage in sqlite:///{path}/{name}.db")
@@ -89,6 +90,10 @@ class ExperimentManager(abc.ABC):
 
 
         model = self.build_model(env, args["model"])
+
+        if self.normalize_reward:
+            env = VecNormalize(env, norm_obs=True, norm_reward=True, gamma=getattr(model, "gamma"))
+
         callbacks = self.get_callbacks(args)
 
         if self.prune:
