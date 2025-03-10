@@ -30,10 +30,11 @@ class HyperparameterManager:
                 if not isinstance(value, dict) or "type" not in value.keys():
                     args[arg][key] = value
                     continue
+                step = value["step"] if "step" in value.keys() else None
                 if value['type'] == 'float':
-                    args[arg][key] = trial.suggest_float(key, float(value['low']), float(value['high']))
+                    args[arg][key] = trial.suggest_float(key, float(value['low']), float(value['high']), step=step)
                 elif value['type'] == 'int':
-                    args[arg][key] = trial.suggest_int(key, float(value['low']), float(value['high']))
+                    args[arg][key] = trial.suggest_int(key, float(value['low']), float(value['high']), step=step)
                 elif value['type'] == 'categorical':
                     args[arg][key] = trial.suggest_categorical(key, value['choices'])
                 else:
