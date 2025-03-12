@@ -3,7 +3,7 @@ from functools import partial
 from typing import List, Dict, AnyStr, Any
 
 from stable_baselines3.common.type_aliases import MaybeCallback
-from stable_baselines3.common.vec_env import SubprocVecEnv, DummyVecEnv, VecNormalize
+from stable_baselines3.common.vec_env import SubprocVecEnv, DummyVecEnv, VecNormalize, MoVecEnv, MoDummyVecEnv
 
 from experiment_runner.HyperparameterManager import HyperparameterManager
 import optuna
@@ -17,13 +17,14 @@ class ExperimentManager(abc.ABC):
     :param storage: Path to the database where the results are stored
     :param hp_path: Path to the YAML file with the hyperparameters
     """
-    def __init__(self, name: str, save_dir : str, storage: str = None, hp_path: str = None, prune: bool = False, save_models: bool = True, tb_log: bool = False, normalize_reward : bool = False):
+    def __init__(self, name: str, save_dir : str, storage: str = None, hp_path: str = None, prune: bool = False, save_models: bool = True, tb_log: bool = False, normalize_reward : bool = False, n_objectives: int = 1):
         self.name = name
         self.save_dir = save_dir
         self.prune = prune
         self.save_models = save_models
         self.tb_log = tb_log
         self.normalize_reward = normalize_reward
+        self.n_objectives = n_objectives
         if storage is None:
             path = os.path.join(os.getcwd(), save_dir)
             print(f"Using sqlite storage in sqlite:///{path}/{name}.db")
@@ -76,10 +77,16 @@ class ExperimentManager(abc.ABC):
         """
         trial_path = f"{self.save_dir}/{self.name}_{trial.number}"
         args["experiment"]["experiment_path"] = trial_path
-        if "n_envs" in args["experiment"] and args["experiment"]["n_envs"] > 1:
-            env = SubprocVecEnv([partial(self.build_env, args["env"]) for _ in range(args["experiment"]["n_envs"])])
+        if self.n_objectives>1:
+            if "n_envs" in args["experiment"] and  args["experiment"]["n_envs"] > 1:
+                env = MoVecEnv([partial(self.build_env, args["env"])])
+            else:
+                env = MoDummyVecEnv([partial(self.build_env, args["env"])])
         else:
-            env = DummyVecEnv([partial(self.build_env, args["env"])])
+            if "n_envs" in args["experiment"] and args["experiment"]["n_envs"] > 1:
+                env = SubprocVecEnv([partial(self.build_env, args["env"]) for _ in range(args["experiment"]["n_envs"])])
+            else:
+                env = DummyVecEnv([partial(self.build_env, args["env"])])
         args["model"]["policy_kwargs"] = args["policy"]
 
         if "log_interval" not in args["experiment"].keys():
