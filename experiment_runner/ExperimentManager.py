@@ -112,7 +112,10 @@ class ExperimentManager(abc.ABC):
         # Set parameters as trial's user attributes
         for arg in args.keys():
             for key, value in args[arg].items():
-                trial.set_user_attr(f"{arg}_{key}", value)
+                try:
+                    trial.set_user_attr(f"{arg}_{key}", value)
+                except Exception as e:
+                    continue
 
         model.learn(total_timesteps=args["experiment"]["n_timesteps"],
                     log_interval=args["experiment"]["log_interval"],
