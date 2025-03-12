@@ -101,6 +101,12 @@ class ExperimentManager(abc.ABC):
             pass
         if "n_timesteps" not in args["experiment"]:
             raise ValueError("Please provide n_timesteps as experiment hyperparameter")
+
+        # Set parameters as trial's user attributes
+        for arg in args.keys():
+            for key, value in args[arg].items():
+                trial.set_user_attr(f"{arg}_{key}", value)
+
         model.learn(total_timesteps=args["experiment"]["n_timesteps"],
                     log_interval=args["experiment"]["log_interval"],
                     callback=callbacks,
@@ -125,11 +131,6 @@ class ExperimentManager(abc.ABC):
         for i in range(n_trials):
             trial = self.study.ask()
             args = self.hp_manager.define_search_space(trial)
-
-            # Set parameters as trial's user attributes
-            for arg in args.keys():
-                for key, value in args[arg].items():
-                    trial.set_user_attr(f"{arg}_{key}", value)
 
             try:
                 value = self.objective(trial, args)
