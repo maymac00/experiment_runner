@@ -7,10 +7,14 @@ class HyperparameterManager:
     Class to manage hyperparameters. Loads YAML specifications of search spaces.
     Maps parameter types to Optuna distributions (e.g., suggest_float)
     """
-    def __init__(self, yaml_path: str):
-        self.data = self.load_conifg(yaml_path)
+    def __init__(self, yaml_path: str, reload: bool = False):
 
-    def load_conifg(self, yaml_path: str) -> dict:
+        self.reload = reload
+        self.yaml_path = yaml_path
+        self.data = self.load_config(yaml_path) if not reload else None
+
+
+    def load_config(self, yaml_path: str) -> dict:
         with open(yaml_path, 'r') as stream:
             try:
                 data = yaml.safe_load(stream)
@@ -18,8 +22,10 @@ class HyperparameterManager:
                 raise exc
         return data
 
-    def define_search_space(self, trial : optuna.trial ) -> Dict[str, Dict[str, Any]]:
+    def define_search_space(self, trial : optuna.trial) -> Dict[str, Dict[str, Any]]:
         args = {"model": {}, "policy": {}, "env": {}, "experiment": {}} # These are dictionaries that will be filled with the hyperparameters
+        if self.reload:
+            self.data = self.load_config(self.yaml_path)
         for arg in args.keys():
             if arg not in self.data.keys():
                 continue

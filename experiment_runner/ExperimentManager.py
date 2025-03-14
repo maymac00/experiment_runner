@@ -17,7 +17,7 @@ class ExperimentManager(abc.ABC):
     :param storage: Path to the database where the results are stored
     :param hp_path: Path to the YAML file with the hyperparameters
     """
-    def __init__(self, name: str, save_dir : str, storage: str = None, hp_path: str = None, prune: bool = False, save_models: bool = True, tb_log: bool = False, normalize_reward : bool = False, n_objectives: int = 1):
+    def __init__(self, name: str, save_dir : str, storage: str = None, hp_path: str = None, prune: bool = False, save_models: bool = True, tb_log: bool = False, normalize_reward : bool = False, n_objectives: int = 1, reload=False):
         self.name = name
         self.save_dir = save_dir
         self.prune = prune
@@ -33,7 +33,7 @@ class ExperimentManager(abc.ABC):
                 os.makedirs(path)
             storage = f"sqlite:///{path}/{name}.db"
         self.study = optuna.create_study(study_name=name + "_study", storage=storage, load_if_exists=True, direction="maximize")
-        self.hp_manager = HyperparameterManager(hp_path)
+        self.hp_manager = HyperparameterManager(hp_path, reload=reload)
 
     def get_callbacks(self, args : Dict[str, Dict[str, Any]]) -> List[MaybeCallback]:
         """
