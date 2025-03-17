@@ -79,7 +79,7 @@ class ExperimentManager(abc.ABC):
         args["experiment"]["experiment_path"] = trial_path
         if self.n_objectives>1:
             if "n_envs" in args["experiment"] and  args["experiment"]["n_envs"] > 1:
-                env = MoVecEnv([partial(self.build_env, args["env"])])
+                env = MoVecEnv([partial(self.build_env, args["env"]) for _ in range(args["experiment"]["n_envs"])])
             else:
                 env = MoDummyVecEnv([partial(self.build_env, args["env"])])
         else:
