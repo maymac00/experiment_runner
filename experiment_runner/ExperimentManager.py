@@ -129,7 +129,7 @@ class ExperimentManager(abc.ABC):
                     )
 
         if self.save_models:
-            model.save(trial_path+"/final_model")
+            model.save("final_model")
             trial.set_user_attr(f"model_dir", trial_path)
         try:
             env.close()
