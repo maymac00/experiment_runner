@@ -76,6 +76,7 @@ class ExperimentManager(abc.ABC):
         :param trial: Optuna trial
         :param args: Dictionary with the hyperparameters
         """
+        root_path = os.getcwd()
         trial_path = f"{self.save_dir}/{self.name}_{trial.number}"
         args["experiment"]["experiment_path"] = trial_path
         # cd trial path
@@ -135,6 +136,8 @@ class ExperimentManager(abc.ABC):
         except Exception:
             pass
         value = self.evaluate(model, self.build_env(args["env"]), args["experiment"])
+
+        os.chdir(root_path)
         return value
 
     def optimize(self, n_trials: int):
