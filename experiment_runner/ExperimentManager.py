@@ -79,6 +79,7 @@ class ExperimentManager(abc.ABC):
         trial_path = f"{self.save_dir}/{self.name}_{trial.number}"
         args["experiment"]["experiment_path"] = trial_path
         # cd trial path
+        os.makedirs(trial_path, exist_ok=True)
         os.chdir(trial_path)
         if self.n_objectives>1:
             if "n_envs" in args["experiment"] and  args["experiment"]["n_envs"] > 1:
