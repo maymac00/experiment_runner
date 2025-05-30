@@ -97,7 +97,7 @@ class ExperimentManager(abc.ABC):
         if "log_interval" not in args["experiment"].keys():
             args["experiment"]["log_interval"] = 50
         if self.tb_log:
-            args["model"]["tensorboard_log"] = f"{trial_path}"
+            args["model"]["tensorboard_log"] = f"{os.curdir}"
             trial.set_user_attr(f"log_dir", trial_path)
 
 
