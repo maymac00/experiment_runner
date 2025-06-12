@@ -5,6 +5,9 @@ from typing import List, Dict, AnyStr, Any
 from stable_baselines3.common.type_aliases import MaybeCallback
 from stable_baselines3.common.vec_env import SubprocVecEnv, DummyVecEnv, VecNormalize, MoVecEnv, MoDummyVecEnv
 
+from stable_baselines3.common.monitor import Monitor, MoMonitor
+from stable_baselines3.common.vec_env import VecMonitor, MoVecMonitor
+
 from experiment_runner.HyperparameterManager import HyperparameterManager
 import optuna
 import abc
@@ -56,6 +59,7 @@ class ExperimentManager(abc.ABC):
     def build_env(self, args: Dict[str, Any]) -> Any:
         """
         Build the environment to be used in the experiment
+        :param monitor: Add monitor for SB3
         :param args: Dictionary with the hyperparameters
         """
         raise NotImplementedError("You need to implement the environment building function")
@@ -82,16 +86,35 @@ class ExperimentManager(abc.ABC):
         # cd trial path
         os.makedirs(trial_path, exist_ok=True)
         os.chdir(trial_path)
+
+        def make_env():
+            def _init():
+                env = self.build_env(args["env"])
+                env = Monitor(env)
+                return env
+            return _init
+
+        def mo_make_env():
+            def _init():
+                env = self.build_env(args["env"])
+                env = MoMonitor(env)
+                return env
+            return _init
+
+
+
         if self.n_objectives>1:
             if "n_envs" in args["experiment"] and  args["experiment"]["n_envs"] > 1:
-                env = MoVecEnv([partial(self.build_env, args["env"]) for _ in range(args["experiment"]["n_envs"])])
+                env = MoVecEnv([mo_make_env() for _ in range(args["experiment"]["n_envs"])])
             else:
-                env = MoDummyVecEnv([partial(self.build_env, args["env"])])
+                env = MoDummyVecEnv([mo_make_env()])
+                env = MoVecMonitor(env)
         else:
             if "n_envs" in args["experiment"] and args["experiment"]["n_envs"] > 1:
-                env = SubprocVecEnv([partial(self.build_env, args["env"]) for _ in range(args["experiment"]["n_envs"])])
+                env = SubprocVecEnv([make_env() for _ in range(args["experiment"]["n_envs"])])
             else:
-                env = DummyVecEnv([partial(self.build_env, args["env"])])
+                env = DummyVecEnv([make_env()])
+                env = VecMonitor(env)
         args["model"]["policy_kwargs"] = args["policy"]
 
         if "log_interval" not in args["experiment"].keys():
