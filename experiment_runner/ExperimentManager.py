@@ -108,13 +108,13 @@ class ExperimentManager(abc.ABC):
                 env = MoVecEnv([mo_make_env() for _ in range(args["experiment"]["n_envs"])])
             else:
                 env = MoDummyVecEnv([mo_make_env()])
-                env = MoVecMonitor(env)
+            env = MoVecMonitor(env)
         else:
             if "n_envs" in args["experiment"] and args["experiment"]["n_envs"] > 1:
-                env = SubprocVecEnv([make_env() for _ in range(args["experiment"]["n_envs"])])
+                env = SubprocVecEnv([partial(self.build_env, args["env"]) for _ in range(args["experiment"]["n_envs"])])
             else:
-                env = DummyVecEnv([make_env()])
-                env = VecMonitor(env)
+                env = DummyVecEnv([partial(self.build_env, args["env"])])
+            env = VecMonitor(env)
         args["model"]["policy_kwargs"] = args["policy"]
 
         if "log_interval" not in args["experiment"].keys():

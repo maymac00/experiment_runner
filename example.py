@@ -9,6 +9,7 @@ class CartpoleHPT(ExperimentManager):
 
     def build_model(self, env, model_args: Dict[str, Any]) -> Any:
         model_args["batch_size"] = model_args["n_steps"] * 5
+        model_args["verbose"] = 1
         model = PPO("MlpPolicy", env, device="cpu", **model_args)
         return model
 
