@@ -87,27 +87,11 @@ class ExperimentManager(abc.ABC):
         os.makedirs(trial_path, exist_ok=True)
         os.chdir(trial_path)
 
-        def make_env():
-            def _init():
-                env = self.build_env(args["env"])
-                env = Monitor(env)
-                return env
-            return _init
-
-        def mo_make_env():
-            def _init():
-                env = self.build_env(args["env"])
-                env = MoMonitor(env)
-                return env
-            return _init
-
-
-
         if self.n_objectives>1:
             if "n_envs" in args["experiment"] and  args["experiment"]["n_envs"] > 1:
-                env = MoVecEnv([mo_make_env() for _ in range(args["experiment"]["n_envs"])])
+                env = MoVecEnv([partial(self.build_env, args["env"]) for _ in range(args["experiment"]["n_envs"])])
             else:
-                env = MoDummyVecEnv([mo_make_env()])
+                env = MoDummyVecEnv([partial(self.build_env, args["env"])])
             env = MoVecMonitor(env)
         else:
             if "n_envs" in args["experiment"] and args["experiment"]["n_envs"] > 1:
