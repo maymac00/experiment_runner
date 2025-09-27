@@ -108,13 +108,11 @@ class ExperimentManager(abc.ABC):
             args["model"]["tensorboard_log"] = f"{os.curdir}"
             trial.set_user_attr(f"log_dir", trial_path)
 
+        if self.normalize_reward:
+            env = VecNormalize(env, norm_obs=True, norm_reward=True)
 
         model = self.build_model(env, copy.deepcopy(args["model"]))
-
-        if self.normalize_reward:
-            env = VecNormalize(env, norm_obs=True, norm_reward=True, gamma=getattr(model, "gamma"))
-            model = self.build_model(env, copy.deepcopy(args["model"]))
-
+        env.gamma = getattr(model, "gamma")
         callbacks = self.get_callbacks(args)
 
         if self.prune:
