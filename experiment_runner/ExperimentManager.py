@@ -1,3 +1,4 @@
+import copy
 import os
 from functools import partial
 from typing import List, Dict, AnyStr, Any
@@ -108,11 +109,11 @@ class ExperimentManager(abc.ABC):
             trial.set_user_attr(f"log_dir", trial_path)
 
 
-        model = self.build_model(env, args["model"])
+        model = self.build_model(env, copy.deepcopy(args["model"]))
 
         if self.normalize_reward:
             env = VecNormalize(env, norm_obs=True, norm_reward=True, gamma=getattr(model, "gamma"))
-            model = self.build_model(env, args["model"])
+            model = self.build_model(env, copy.deepcopy(args["model"]))
 
         callbacks = self.get_callbacks(args)
 
