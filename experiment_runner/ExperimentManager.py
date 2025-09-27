@@ -112,6 +112,7 @@ class ExperimentManager(abc.ABC):
 
         if self.normalize_reward:
             env = VecNormalize(env, norm_obs=True, norm_reward=True, gamma=getattr(model, "gamma"))
+            model = self.build_model(env, args["model"])
 
         callbacks = self.get_callbacks(args)
 
