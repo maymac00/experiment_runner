@@ -3,6 +3,7 @@ import os
 from functools import partial
 from typing import List, Dict, AnyStr, Any
 
+import numpy as np
 from stable_baselines3.common.type_aliases import MaybeCallback
 from stable_baselines3.common.vec_env import SubprocVecEnv, DummyVecEnv, VecNormalize, MoVecEnv, MoDummyVecEnv
 
@@ -109,10 +110,11 @@ class ExperimentManager(abc.ABC):
             trial.set_user_attr(f"log_dir", trial_path)
 
         if self.normalize_reward:
-            env = VecNormalize(env, norm_obs=True, norm_reward=True)
+            env = VecNormalize(env, norm_obs=False, clip_obs=np.infty, norm_reward=True)
 
         model = self.build_model(env, copy.deepcopy(args["model"]))
-        env.gamma = getattr(model, "gamma")
+        if self.normalize_reward:
+            env.gamma = getattr(model, "gamma")
         callbacks = self.get_callbacks(args)
 
         if self.prune:
@@ -137,6 +139,8 @@ class ExperimentManager(abc.ABC):
 
         if self.save_models:
             model.save("final_model")
+            if self.normalize_reward:
+                env.save("vec_normalize.pkl")
             trial.set_user_attr(f"model_dir", trial_path)
         try:
             env.close()
