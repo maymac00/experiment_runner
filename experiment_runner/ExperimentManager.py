@@ -5,7 +5,7 @@ from typing import List, Dict, AnyStr, Any
 
 import numpy as np
 from stable_baselines3.common.type_aliases import MaybeCallback
-from stable_baselines3.common.vec_env import SubprocVecEnv, DummyVecEnv, VecNormalize, MoVecEnv, MoDummyVecEnv
+from stable_baselines3.common.vec_env import SubprocVecEnv, DummyVecEnv, VecNormalize, MoVecEnv, MoDummyVecEnv, MoVecNormalize
 
 from stable_baselines3.common.monitor import Monitor, MoMonitor
 from stable_baselines3.common.vec_env import VecMonitor, MoVecMonitor
@@ -61,7 +61,6 @@ class ExperimentManager(abc.ABC):
     def build_env(self, args: Dict[str, Any]) -> Any:
         """
         Build the environment to be used in the experiment
-        :param monitor: Add monitor for SB3
         :param args: Dictionary with the hyperparameters
         """
         raise NotImplementedError("You need to implement the environment building function")
@@ -110,7 +109,10 @@ class ExperimentManager(abc.ABC):
             trial.set_user_attr(f"log_dir", trial_path)
 
         if self.normalize_reward:
-            env = VecNormalize(env, norm_obs=False, clip_obs=np.infty, norm_reward=True)
+            if self.n_objectives==1:
+                env = VecNormalize(env, norm_obs=False, clip_obs=np.inft, norm_reward=True)
+            else:
+                env = MoVecNormalize(env, norm_obs=False, clip_obs=np.infty, norm_reward=True)
 
         model = self.build_model(env, copy.deepcopy(args["model"]))
         if self.normalize_reward:
