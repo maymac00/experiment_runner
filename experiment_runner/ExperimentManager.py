@@ -90,9 +90,9 @@ class ExperimentManager(abc.ABC):
 
         if self.n_objectives>1:
             if "n_envs" in args["experiment"] and  args["experiment"]["n_envs"] > 1:
-                env = MoVecEnv([partial(self.build_env, args["env"]) for _ in range(args["experiment"]["n_envs"])])
+                env = MoVecEnv([partial(self.build_env, args["env"]) for _ in range(args["experiment"]["n_envs"])], self.n_objectives)
             else:
-                env = MoDummyVecEnv([partial(self.build_env, args["env"])])
+                env = MoDummyVecEnv([partial(self.build_env, args["env"])], self.n_objectives )
             env = MoVecMonitor(env)
         else:
             if "n_envs" in args["experiment"] and args["experiment"]["n_envs"] > 1:
