@@ -1,0 +1,9 @@
+gymnasium>=1.0.0
+matplotlib
+numpy
+torch>=2.6.0
+tensorboard
+optuna
+optuna-dashboard
+PyYAML
+stable_baselines3@ git+https://github.com/maymac00/mo-stable-baselines3.git@c290795a38b1954b40d6384ea0a267ff790e1ce0

@@ -35,8 +35,7 @@ class ExperimentManager(abc.ABC):
             path = os.path.join(os.getcwd(), save_dir)
             print(f"Using sqlite storage in sqlite:///{path}/{name}.db")
             # create folder if it does not exist
-            if not os.path.exists(path):
-                os.makedirs(path)
+            os.makedirs(path, exist_ok=True)
             storage = f"sqlite:///{path}/{name}.db"
         self.study = optuna.create_study(study_name=name + "_study", storage=storage, load_if_exists=True, direction="maximize")
         self.hp_manager = HyperparameterManager(hp_path, reload=reload)
