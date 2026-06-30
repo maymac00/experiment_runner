@@ -164,6 +164,7 @@ Grounded in the current source. Sorted by difficulty.
 - [ ] **Pluggable sampler/pruner from YAML** (TPE / CMA-ES / ASHA-Hyperband) with budget-aware scheduling.
 - [ ] **Live metrics sink.** Beyond TensorBoard, stream eval/objective curves to InfluxDB for a Grafana
   dashboard aggregating concurrent workers.
+- [ ] **Allow ordering of wrappers.** Right now this repo enforces the Monitor wrappers to be exactly one level above the final MoVec wrapper. Being able to move the Monitor wrapper to custom positions of the stack could allow tracking of normalised rewards, scalarise/unscalarised rewards. For instance, tracking MO rewards for PPO runs.
 
 ## License
 

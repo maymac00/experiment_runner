@@ -109,9 +109,9 @@ class ExperimentManager(abc.ABC):
 
         if self.normalize_reward:
             if self.n_objectives==1:
-                env = VecNormalize(env, norm_obs=False, clip_obs=np.infty, norm_reward=True)
+                env = VecNormalize(env, norm_obs=False, clip_obs=np.inf, norm_reward=True)
             else:
-                env = MoVecNormalize(env, norm_obs=False, clip_obs=np.infty, norm_reward=True)
+                env = MoVecNormalize(env, norm_obs=False, clip_obs=np.inf, norm_reward=True)
 
         model = self.build_model(env, copy.deepcopy(args["model"]))
         if self.normalize_reward:
