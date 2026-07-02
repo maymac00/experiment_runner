@@ -4,6 +4,8 @@ from functools import partial
 from typing import List, Dict, AnyStr, Any
 
 import numpy as np
+from stable_baselines3.common.callbacks import BaseCallback
+from stable_baselines3.common.logger import HParam
 from stable_baselines3.common.type_aliases import MaybeCallback
 from stable_baselines3.common.vec_env import SubprocVecEnv, DummyVecEnv, VecNormalize, MoVecEnv, MoDummyVecEnv, MoVecNormalize
 
@@ -14,6 +16,31 @@ from experiment_runner.HyperparameterManager import HyperparameterManager
 import optuna
 import abc
 import os
+
+class HParamCallback(BaseCallback):
+    """
+    Saves the experiment hyperparameters to the tensorboard SummaryWriter at the beginning of training.
+    :param hparams: Flattened dictionary with the hyperparameters to log
+    """
+    def __init__(self, hparams: Dict[str, Any]):
+        super().__init__()
+        self.hparams = hparams
+
+    def _on_training_start(self) -> None:
+        # HParam only supports scalar values (bool, str, float, int)
+        hparam_dict = {k: v for k, v in self.hparams.items() if isinstance(v, (bool, str, float, int))}
+        metric_dict = {
+            "rollout/ep_rew_mean": 0.0,
+        }
+        self.logger.record(
+            "hparams",
+            HParam(hparam_dict, metric_dict),
+            exclude=("stdout", "log", "json", "csv"),
+        )
+
+    def _on_step(self) -> bool:
+        return True
+
 
 class ExperimentManager(abc.ABC):
     """
@@ -117,6 +144,10 @@ class ExperimentManager(abc.ABC):
         if self.normalize_reward:
             env.gamma = getattr(model, "gamma")
         callbacks = self.get_callbacks(args)
+
+        if self.tb_log:
+            hparams = {f"{arg}_{key}": value for arg in args.keys() for key, value in args[arg].items()}
+            callbacks.append(HParamCallback(hparams))
 
         if self.prune:
             #TODO: callbacks.append(optuna.integration.OptunaPruningCallback(trial, "reward"))
